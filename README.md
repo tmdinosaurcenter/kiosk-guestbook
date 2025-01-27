@@ -1,35 +1,36 @@
 This is a simple kiosk landing page that embeds a Google Form and displays approved submissions on a scrolling ticker.
 
-Features
+## Features
 Embeds an existing Google Form in an iframe
 Fetches approved entries (Name, Location, Comment) from an API endpoint
 Displays approved entries in a scrolling ticker at the bottom of the page
-Getting Started
+## Getting Started
 Install Node.js if not using Docker.
 Clone this repo and change to the project folder.
+
 Install dependencies:
-` npm install `
+```npm install```
 
 Run locally:
-` node app.js `
+```node app.js```
 
 Or:
 
-` npm start `
+```npm start```
 
 Then open http://localhost:3000 in your browser.
 
-Running in Docker
+## Running in Docker
 Build the image:
-` docker build -t museum-kiosk . `
+```docker build -t museum-kiosk .```
 
 Run a container:
-` docker run -p 3000:3000 museum-kiosk `
+```docker run -p 3000:3000 museum-kiosk```
 
 Then open http://localhost:3000 (or the server’s IP) in your browser.
 
-Configuration
+## Configuration
 Google Sheets API credentials: Place them as credentials.json (this file should remain uncommitted).
 Adjust environment variables or code as needed for your specific form and sheet.
 License
-MIT License. See LICENSE for details.
+MIT License. See [LICENSE](https://github.com/tmdinosaurcenter/kiosk-guestbook?tab=MIT-1-ov-file) for details.
