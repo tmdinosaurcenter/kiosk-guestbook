@@ -1,6 +1,0 @@
-# Node modules
-node_modules/
-
-# Environment files or credentials
-.env
-credentials.json
