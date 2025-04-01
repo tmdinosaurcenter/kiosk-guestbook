@@ -10,7 +10,8 @@ def init_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS guests (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
+            first_name TEXT NOT NULL,
+            last_name TEXT NOT NULL,
             email TEXT NOT NULL,
             location TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -22,21 +23,24 @@ def init_db():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        name = request.form.get('name')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         email = request.form.get('email')
         location = request.form.get('location')
-        if name and email and location:
+        if first_name and last_name and email and location:
             conn = sqlite3.connect(DATABASE)
             c = conn.cursor()
-            c.execute('INSERT INTO guests (name, email, location) VALUES (?, ?, ?)',
-                      (name, email, location))
+            c.execute(
+                'INSERT INTO guests (first_name, last_name, email, location) VALUES (?, ?, ?, ?)',
+                (first_name, last_name, email, location)
+            )
             conn.commit()
             conn.close()
             return redirect(url_for('index'))
-    # Retrieve guest entries to display on the page.
+    # Retrieve guest entries to display only first name and location.
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    c.execute('SELECT name, email, location, timestamp FROM guests ORDER BY id DESC')
+    c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
     guests = c.fetchall()
     conn.close()
     return render_template('index.html', guests=guests)

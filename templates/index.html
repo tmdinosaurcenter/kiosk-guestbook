@@ -9,8 +9,11 @@
 <body>
     <h1>Museum Visitor Guestbook</h1>
     <form method="post" action="/">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
+        <label for="first_name">First Name(s):</label><br>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+
+        <label for="last_name">Last Name:</label><br>
+        <input type="text" id="last_name" name="last_name" required><br><br>
 
         <label for="email">Email:</label><br>
         <input type="email" id="email" name="email" required><br><br>
@@ -24,7 +27,7 @@
     <h2>Guest Entries</h2>
     <ul>
         {% for guest in guests %}
-        <li><strong>{{ guest[0] }}</strong> from {{ guest[2] }} (<em>{{ guest[1] }}</em>) at {{ guest[3] }}</li>
+        <li><strong>{{ guest[0] }}</strong> from {{ guest[1] }}</li>
         {% endfor %}
     </ul>
 </body>
