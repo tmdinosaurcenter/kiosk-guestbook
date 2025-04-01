@@ -1,36 +1,73 @@
-This is a simple kiosk landing page that embeds a Google Form and displays approved submissions on a scrolling ticker.
+# Kiosk Guestbook (html-form Branch)
+
+This branch implements a minimal HTML form-based guestbook for our museum visitor kiosk project. It uses a Python Flask backend with an SQLite database to store visitor entries. The application is containerized with Docker for easy deployment and testing.
 
 ## Features
-Embeds an existing Google Form in an iframe
-Fetches approved entries (Name, Location, Comment) from an API endpoint
-Displays approved entries in a scrolling ticker at the bottom of the page
-## Getting Started
-Install Node.js if not using Docker.
-Clone this repo and change to the project folder.
+- Visitor Form: Collects visitor name, email, and location.
+- Data Storage: Uses SQLite to persist guest entries.
+- Dockerized: Easily build and run the application in a Docker container.
+- Minimal Viable Product: A simple, extendable starting point for your project.
 
-Install dependencies:
-```npm install```
+## Project Structure
+```
+kiosk-guestbook/
+├── app.py               # Main Flask application
+├── requirements.txt     # Python dependencies
+├── Dockerfile           # Docker configuration file
+└── templates/
+    └── index.html       # HTML template for the guestbook form and entries list
+```
 
-Run locally:
-```node app.js```
+## Installation and Setup
 
-Or:
+### Prerequisites
+- Git: To clone the repository.
+- Python 3.9+: To run the app locally (optional if using Docker).
+- Docker: To build and run the container.
 
-```npm start```
+#### Checkout the Branch
+If the repository is already initialized on the server (on the `main` branch), follow these steps:
 
-Then open http://localhost:3000 in your browser.
+1. Navigate to your repository directory:
+`cd /path/to/kiosk-guestbook`
+2. Fetch the latest branches:
 
-## Running in Docker
-Build the image:
-```docker build -t museum-kiosk .```
+`git fetch origin`
+3. Checkout the html-form branch:
 
-Run a container:
-```docker run -p 3000:3000 museum-kiosk```
+`git checkout -b html-form origin/html-form`
+#### Running Locally
 
-Then open http://localhost:3000 (or the server’s IP) in your browser.
+1. (Optional) Set up a virtual environment:
+```
+python3 -m venv venv
+source venv/bin/activate
+```
 
-## Configuration
-Google Sheets API credentials: Place them as credentials.json (this file should remain uncommitted).
-Adjust environment variables or code as needed for your specific form and sheet.
-License
-MIT License. See [LICENSE](https://github.com/tmdinosaurcenter/kiosk-guestbook?tab=MIT-1-ov-file) for details.
+2. Install the dependencies:
+`pip install -r requirements.txt`
+3. Start the Flask application:
+`python app.py`
+4. Open your browser and navigate to <http://localhost:5000> to view the guestbook.
+
+#### Running with Docker
+
+1. Build the Docker Image:
+
+`docker build -t guestbook .`
+2. Run the Docker Container:
+`docker run -p 5000:5000 guestbook`
+3. Open your browser and navigate to <http://localhost:5000>.
+### Troubleshooting
+If you encounter issues during the Docker build (e.g., hanging during the `pip install` step):
+- Use the Host Network:
+`docker build --network=host -t guestbook .`
+- Clear the Docker Build Cache:
+`docker builder prune`
+## Future Improvements
+- Persistent Storage: Implement Docker volumes or a more robust database for data persistence.
+- Enhanced Security: Add input validation, sanitization, and CSRF protection.
+- Feature Expansion: Integrate additional museum kiosk features or analytics.
+
+## License
+TBD
