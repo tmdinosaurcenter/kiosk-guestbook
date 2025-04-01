@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Museum Visitor Guestbook</title>
+</head>
+
+<body>
+    <h1>Museum Visitor Guestbook</h1>
+    <form method="post" action="/">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="location">Location:</label><br>
+        <input type="text" id="location" name="location" required><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+    <hr>
+    <h2>Guest Entries</h2>
+    <ul>
+        {% for guest in guests %}
+        <li><strong>{{ guest[0] }}</strong> from {{ guest[2] }} (<em>{{ guest[1] }}</em>) at {{ guest[3] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>

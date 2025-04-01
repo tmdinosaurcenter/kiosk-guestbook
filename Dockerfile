@@ -1,20 +1,14 @@
-# Use a lightweight Node image
-FROM node:18-alpine
+FROM python:3.9-slim
 
-# Create app directory
 WORKDIR /app
 
-# Copy package.json first to leverage Docker caching
-COPY package.json .
+# Copy and install Python dependencies.
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application files
+# Copy the rest of the app code.
 COPY . .
 
-# Expose port 3000 (the port your Node app will run on)
-EXPOSE 3000
+EXPOSE 5000
 
-# Start the server
-CMD ["node", "app.js"]
+CMD ["python", "app.py"]
