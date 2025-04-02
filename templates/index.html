@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>The Montana Dinosaur Center Visitor Log</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         /* Scrolling marquee styles */
         .scrolling-wrapper {
@@ -40,7 +40,7 @@
 <body>
     <div class="container mt-5 mb-5">
         <header class="d-flex align-items-center mb-4">
-            <img src="static/images/logo.png" alt="Museum Logo" class="me-3" style="height: 50px;">
+            <img src="static/images/logo.png" alt="Museum Logo" class="me-3" style="height: 50px;" />
             <h1 class="h3 mb-0">The Montana Dinosaur Center Visitor Log</h1>
         </header>
 
@@ -59,36 +59,38 @@
         <form method="post" action="/" class="mb-4">
             <div class="mb-3">
                 <label for="first_name" class="form-label">First Name(s):</label>
-                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                <input type="text" class="form-control" id="first_name" name="first_name" required />
             </div>
             <div class="mb-3">
                 <label for="last_name" class="form-label">Last Name:</label>
-                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                <input type="text" class="form-control" id="last_name" name="last_name" required />
             </div>
+
+            <!-- Email + Newsletter Block (fully fixed) -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email (Optional):</label>
-                <input type="email" class="form-control" id="email" name="email">
-            <!-- Email + Newsletter Block (fixed) -->
-            <div class="mb-3">
-                <label for="email" class="form-label">Email (Optional):</label>
-                <input type="email" class="form-control" id="email" name="email">
-            
+                <input type="email" class="form-control" id="email" name="email" />
+
                 <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" name="newsletter_opt_in" id="newsletter_opt_in" checked />
+                    <input class="form-check-input" type="checkbox" name="newsletter_opt_in" id="newsletter_opt_in"
+                        checked />
                     <label class="form-check-label" for="newsletter_opt_in">
                         Subscribe me to the TMDC newsletter
                     </label>
                 </div>
             </div>
+
             <div class="mb-3">
                 <label for="location" class="form-label">Location:</label>
-                <input type="text" class="form-control" id="location" name="location" required>
+                <input type="text" class="form-control" id="location" name="location" required />
             </div>
+
             <!-- Comment field hidden by default -->
             <div class="mb-3" id="comment-field" style="display: none;">
                 <label for="comment" class="form-label">Comment (Optional):</label>
                 <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
             </div>
+
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
@@ -107,24 +109,26 @@
     <!-- JavaScript to reveal the comment field -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const firstNameInput = document.getElementById('first_name');
-            const lastNameInput = document.getElementById('last_name');
-            const locationInput = document.getElementById('location');
-            const commentField = document.getElementById('comment-field');
+            const firstNameInput = document.getElementById("first_name");
+            const lastNameInput = document.getElementById("last_name");
+            const locationInput = document.getElementById("location");
+            const commentField = document.getElementById("comment-field");
 
             function checkFields() {
-                if (firstNameInput.value.trim().length >= 3 &&
+                if (
+                    firstNameInput.value.trim().length >= 3 &&
                     lastNameInput.value.trim().length >= 3 &&
-                    locationInput.value.trim().length >= 3) {
-                    commentField.style.display = 'block';
+                    locationInput.value.trim().length >= 3
+                ) {
+                    commentField.style.display = "block";
                 } else {
-                    commentField.style.display = 'none';
+                    commentField.style.display = "none";
                 }
             }
 
-            firstNameInput.addEventListener('input', checkFields);
-            lastNameInput.addEventListener('input', checkFields);
-            locationInput.addEventListener('input', checkFields);
+            firstNameInput.addEventListener("input", checkFields);
+            lastNameInput.addEventListener("input", checkFields);
+            locationInput.addEventListener("input", checkFields);
         });
     </script>
 
