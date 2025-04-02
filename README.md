@@ -18,14 +18,23 @@ Uses Docker and Docker Compose to create a production-ready environment with Gun
 ## Project Structure
 ```
 kiosk-guestbook/
-├── app.py                # Main Flask application with logging, validation, and database initialization
-├── requirements.txt      # Python dependencies (Flask, Gunicorn, etc.)
-├── Dockerfile            # Production Dockerfile using Gunicorn
-├── docker-compose.yml    # Docker Compose configuration for container orchestration
-├── .env                  # Environment variables file (see template below)
-├── en.txt                # Profanity list file (banned words, one per line)
-└── templates/
-    └── index.html        # HTML template for the guestbook user interface
+├── scripts/
+│   ├── guestbook_export.py    # Script to export guest entries (e.g., for Mailchimp)
+│   └── guestbook.db           # SQLite database file (if stored here, mainly for development)
+├── static/
+│   └── images/
+│       └── logo.png           # Logo for display in the application
+├── templates/
+│   └── index.html             # Main HTML template for the guestbook
+├── .env                       # Environment variables for Docker Compose (production settings)
+├── app.py                     # Main Flask application code
+├── docker-compose.yml         # Docker Compose configuration for container orchestration
+├── Dockerfile                 # Default Dockerfile (development or general usage)
+├── en.txt                     # Profanity list file (one banned word per line)
+├── production.Dockerfile      # Optional Dockerfile optimized for production
+├── README.md                  # Project documentation
+└── requirements.txt           # Python dependencies (Flask, Gunicorn, etc.)
+
 ```
 ## Getting Started
 Prerequisites
