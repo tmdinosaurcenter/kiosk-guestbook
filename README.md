@@ -24,8 +24,7 @@ Uses Docker and Docker Compose to create a production-ready environment with Gun
 ``` bash
 kiosk-guestbook/
 ├── scripts/
-│   ├── guestbook_export.py    # Script to export guest entries (e.g., for Mailchimp)
-│   └── guestbook.db           # SQLite database file (if stored here, mainly for development)
+│   └── guestbook_export.py    # Script to export guest entries (e.g., for Mailchimp)
 ├── static/
 │   └── images/
 │       └── logo.png           # Logo for display in the application
@@ -36,7 +35,7 @@ kiosk-guestbook/
 ├── docker-compose.yml         # Docker Compose configuration for container orchestration
 ├── Dockerfile                 # Default Dockerfile (development or general usage)
 ├── en.txt                     # Profanity list file (one banned word per line)
-├── production.Dockerfile      # Optional Dockerfile optimized for production
+├── development.Dockerfile      # Optional Dockerfile optimized for production
 ├── README.md                  # Project documentation
 └── requirements.txt           # Python dependencies (Flask, Gunicorn, etc.)
 ```
