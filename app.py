@@ -1,24 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 import sqlite3
 import re
 import logging
 import os
 
-# Set up basic logging
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-
-# Use an environment variable for the database path (defaulting to 'guestbook.db')
 DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db')
 
 def load_banned_words():
-    """Load a set of banned words from a local file.
-
-    Expects 'en.txt' to be in the same directory as this script.
-    If the file is missing, a minimal fallback set is used.
-    """
     banned_words = set()
     file_path = os.path.join(os.path.dirname(__file__), 'en.txt')
     if os.path.exists(file_path):
@@ -33,15 +26,13 @@ def load_banned_words():
             logger.error("Error reading banned words file: %s", e)
             banned_words = {"fuck", "shit", "damn", "bitch", "asshole", "cunt", "dick", "piss", "crap", "hell"}
     else:
-        logger.warning("Banned words file not found. Using fallback minimal list.")
+        logger.warning("Banned words file not found. Using fallback list.")
         banned_words = {"fuck", "shit", "damn", "bitch", "asshole", "cunt", "dick", "piss", "crap", "hell"}
     return banned_words
 
-# Load the banned words using the helper function.
 BANNED_WORDS = load_banned_words()
 
 def contains_banned_words(text):
-    """Check if the provided text contains any banned words."""
     words = text.lower().split()
     for word in words:
         word_clean = word.strip(".,!?;:\"'")
@@ -50,7 +41,6 @@ def contains_banned_words(text):
     return False
 
 def init_db():
-    """Initialize the SQLite database and create the guests table if it doesn't exist."""
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute('''
@@ -61,6 +51,7 @@ def init_db():
             email TEXT,
             location TEXT NOT NULL,
             comment TEXT,
+            newsletter_opt_in BOOLEAN DEFAULT 1,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -69,35 +60,34 @@ def init_db():
     logger.info("Database initialized.")
 
 def is_valid_email(email):
-    """Simple regex-based email validation."""
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email)
 
 @app.before_first_request
 def initialize_database():
-    """Ensure the database is initialized before handling the first request."""
     init_db()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     error = None
     if request.method == 'POST':
-        logger.info("Received POST request with form data.")
+        logger.info("Received POST request.")
         first_name = request.form.get('first_name', '').strip()
         last_name = request.form.get('last_name', '').strip()
         email = request.form.get('email', '').strip()
         location = request.form.get('location', '').strip()
         comment = request.form.get('comment', '').strip()
+        newsletter_opt_in = request.form.get('newsletter_opt_in') == 'on'
 
         if not (first_name and last_name and location):
             error = "First name, last name, and location are required."
-            logger.warning("Validation error: Missing required fields.")
+            logger.warning("Missing required fields.")
         elif email and not is_valid_email(email):
             error = "Invalid email address."
-            logger.warning("Validation error: Invalid email address '%s'.", email)
+            logger.warning("Invalid email: %s", email)
         elif comment and contains_banned_words(comment):
             error = "Your comment contains inappropriate language. Please revise."
-            logger.warning("Validation error: Inappropriate language detected in comment.")
+            logger.warning("Profanity detected in comment.")
 
         if error:
             conn = sqlite3.connect(DATABASE)
@@ -110,25 +100,57 @@ def index():
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
         c.execute(
-            'INSERT INTO guests (first_name, last_name, email, location, comment) VALUES (?, ?, ?, ?, ?)',
-            (first_name, last_name, email, location, comment)
+            '''
+            INSERT INTO guests (first_name, last_name, email, location, comment, newsletter_opt_in)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''',
+            (first_name, last_name, email, location, comment, newsletter_opt_in)
         )
         conn.commit()
         conn.close()
-        logger.info("New guest entry added: %s from %s.", first_name, location)
+        logger.info("Added guest: %s %s from %s", first_name, last_name, location)
         return redirect(url_for('index'))
 
-    # For GET requests, retrieve guest entries to display.
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
     guests = c.fetchall()
     conn.close()
-    logger.info("Rendering guestbook page with %d entries.", len(guests))
+    logger.info("Rendering index with %d guests.", len(guests))
     return render_template('index.html', error=error, guests=guests)
 
+@app.route('/api/guests', methods=['GET'])
+def api_guests():
+    api_key = request.headers.get('X-API-Key')
+    if api_key != os.environ.get("API_KEY"):
+        abort(403)
+
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''
+        SELECT first_name, last_name, email, location, comment, newsletter_opt_in, timestamp
+        FROM guests
+        WHERE email IS NOT NULL AND email != ''
+        ORDER BY id DESC
+    ''')
+    rows = c.fetchall()
+    conn.close()
+
+    guests = [
+        {
+            "first_name": row[0],
+            "last_name": row[1],
+            "email": row[2],
+            "location": row[3],
+            "comment": row[4],
+            "newsletter_opt_in": bool(row[5]),
+            "timestamp": row[6]
+        }
+        for row in rows
+    ]
+    return jsonify(guests)
+
 if __name__ == '__main__':
-    # For development use; production (gunicorn) will not execute this block.
     init_db()
-    logger.info("Starting Flask app on host 0.0.0.0, port 8000.")
+    logger.info("Starting development server at http://0.0.0.0:8000")
     app.run(host='0.0.0.0', port=8000)
