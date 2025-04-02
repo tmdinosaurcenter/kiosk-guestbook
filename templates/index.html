@@ -70,6 +70,11 @@
                 <label for="location" class="form-label">Location:</label>
                 <input type="text" class="form-control" id="location" name="location" required>
             </div>
+            <!-- Comment field hidden by default -->
+            <div class="mb-3" id="comment-field" style="display: none;">
+                <label for="comment" class="form-label">Comment (Optional):</label>
+                <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
@@ -84,6 +89,30 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- JavaScript to reveal the comment field -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const firstNameInput = document.getElementById('first_name');
+            const lastNameInput = document.getElementById('last_name');
+            const locationInput = document.getElementById('location');
+            const commentField = document.getElementById('comment-field');
+
+            function checkFields() {
+                if (firstNameInput.value.trim().length >= 3 &&
+                    lastNameInput.value.trim().length >= 3 &&
+                    locationInput.value.trim().length >= 3) {
+                    commentField.style.display = 'block';
+                } else {
+                    commentField.style.display = 'none';
+                }
+            }
+
+            firstNameInput.addEventListener('input', checkFields);
+            lastNameInput.addEventListener('input', checkFields);
+            locationInput.addEventListener('input', checkFields);
+        });
+    </script>
 
     <!-- Bootstrap JS (optional) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
