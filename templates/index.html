@@ -22,7 +22,6 @@
         .scrolling-content {
             display: inline-block;
             padding: 10px;
-            /* Adjust the animation duration to control speed */
             animation: scroll-left 20s linear infinite;
         }
 
@@ -42,6 +41,12 @@
     <div class="container mt-5 mb-5">
         <h1 class="mb-4">Museum Visitor Guestbook</h1>
 
+        <!-- Brief instructions for the form -->
+        <div class="alert alert-info" role="alert">
+            Please fill in your details below. First name, last name, and location are required.
+            Providing your email is optional, but it helps us follow up if needed.
+        </div>
+
         {% if error %}
         <div class="alert alert-danger" role="alert">
             {{ error }}
@@ -58,8 +63,8 @@
                 <input type="text" class="form-control" id="last_name" name="last_name" required>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <label for="email" class="form-label">Email (Optional):</label>
+                <input type="email" class="form-control" id="email" name="email">
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label">Location:</label>

@@ -18,7 +18,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT NOT NULL,
             last_name TEXT NOT NULL,
-            email TEXT NOT NULL,
+            email TEXT,
             location TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -42,11 +42,11 @@ def index():
         email = request.form.get('email', '').strip()
         location = request.form.get('location', '').strip()
 
-        # Basic validation checks
-        if not (first_name and last_name and email and location):
-            error = "All fields are required."
-            logger.warning("Validation error: Missing required fields.")
-        elif not is_valid_email(email):
+        # Basic validation checks (email is optional)
+        if not (first_name and last_name and location):
+            error = "First name, last name, and location are required."
+            logger.warning("Validation error: Missing required fields (first name, last name, location).")
+        elif email and not is_valid_email(email):
             error = "Invalid email address."
             logger.warning("Validation error: Invalid email address '%s'.", email)
 
