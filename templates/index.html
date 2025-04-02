@@ -8,6 +8,9 @@
 
 <body>
     <h1>Museum Visitor Guestbook</h1>
+    {% if error %}
+    <div style="color: red;">{{ error }}</div>
+    {% endif %}
     <form method="post" action="/">
         <label for="first_name">First Name(s):</label><br>
         <input type="text" id="first_name" name="first_name" required><br><br>
