@@ -9,7 +9,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-DATABASE = 'guestbook.db'
+
+# Use an environment variable for the database path (defaulting to 'guestbook.db')
+DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db')
 
 def load_banned_words():
     """Load a set of banned words from a local file.
@@ -48,6 +50,7 @@ def contains_banned_words(text):
     return False
 
 def init_db():
+    """Initialize the SQLite database and create the guests table if it doesn't exist."""
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute('''
@@ -66,8 +69,14 @@ def init_db():
     logger.info("Database initialized.")
 
 def is_valid_email(email):
+    """Simple regex-based email validation."""
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email)
+
+@app.before_first_request
+def initialize_database():
+    """Ensure the database is initialized before handling the first request."""
+    init_db()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -109,6 +118,7 @@ def index():
         logger.info("New guest entry added: %s from %s.", first_name, location)
         return redirect(url_for('index'))
 
+    # For GET requests, retrieve guest entries to display.
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
@@ -118,6 +128,7 @@ def index():
     return render_template('index.html', error=error, guests=guests)
 
 if __name__ == '__main__':
+    # For development use; production (gunicorn) will not execute this block.
     init_db()
-    logger.info("Starting Flask app on host 0.0.0.0, port 5000.")
-    app.run(host='0.0.0.0', port=5000)
+    logger.info("Starting Flask app on host 0.0.0.0, port 8000.")
+    app.run(host='0.0.0.0', port=8000)
