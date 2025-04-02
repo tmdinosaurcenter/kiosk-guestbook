@@ -1,73 +1,58 @@
-# Kiosk Guestbook (html-form Branch)
-
-This branch implements a minimal HTML form-based guestbook for our museum visitor kiosk project. It uses a Python Flask backend with an SQLite database to store visitor entries. The application is containerized with Docker for easy deployment and testing.
+## Museum Visitor Guestbook
+A simple Flask-based guestbook application designed for an internal museum kiosk. This application collects visitor details (first name(s), last name, email, location, and an optional comment) while dynamically revealing the comment field only after the required fields are filled out with at least 3 characters each. The app includes basic input validation, profanity filtering using a custom banned words list, and logging for easier troubleshooting. It uses SQLite for data storage and is containerized with Docker and Docker Compose for easy deployment on an intranet.
 
 ## Features
-- Visitor Form: Collects visitor name, email, and location.
-- Data Storage: Uses SQLite to persist guest entries.
-- Dockerized: Easily build and run the application in a Docker container.
-- Minimal Viable Product: A simple, extendable starting point for your project.
+- Dynamic Form Behavior:
+The comment field is hidden by default and only revealed when the first name, last name, and location fields each contain at least 3 characters.
+-Input Validation:
+Ensures required fields (first name, last name, and location) are filled.
+- Validates email format (if provided).
+Uses a profanity filter loaded from en.txt to prevent inappropriate language in comments.
+- Logging:
+Logs key events and validation errors to help with debugging and monitoring.
+- SQLite Database:
+Stores guest entries locally, with persistence ensured by mounting a Docker volume.
+- Containerized Deployment:
+Uses Docker and Docker Compose to create a production-ready environment with Gunicorn as the WSGI server.
 
 ## Project Structure
 ```
 kiosk-guestbook/
-├── app.py               # Main Flask application
-├── requirements.txt     # Python dependencies
-├── Dockerfile           # Docker configuration file
+├── app.py                # Main Flask application with logging, validation, and database initialization
+├── requirements.txt      # Python dependencies (Flask, Gunicorn, etc.)
+├── Dockerfile            # Production Dockerfile using Gunicorn
+├── docker-compose.yml    # Docker Compose configuration for container orchestration
+├── .env                  # Environment variables file (see template below)
+├── en.txt                # Profanity list file (banned words, one per line)
 └── templates/
-    └── index.html       # HTML template for the guestbook form and entries list
+    └── index.html        # HTML template for the guestbook user interface
 ```
-
-## Installation and Setup
-
-### Prerequisites
-- Git: To clone the repository.
-- Python 3.9+: To run the app locally (optional if using Docker).
-- Docker: To build and run the container.
-
-#### Checkout the Branch
-If the repository is already initialized on the server (on the `main` branch), follow these steps:
-
-1. Navigate to your repository directory:
-`cd /path/to/kiosk-guestbook`
-2. Fetch the latest branches:
-
-`git fetch origin`
-3. Checkout the html-form branch:
-
-`git checkout -b html-form origin/html-form`
-#### Running Locally
-
-1. (Optional) Set up a virtual environment:
-```
-python3 -m venv venv
-source venv/bin/activate
-```
-
-2. Install the dependencies:
-`pip install -r requirements.txt`
-3. Start the Flask application:
-`python app.py`
-4. Open your browser and navigate to <http://localhost:5000> to view the guestbook.
-
-#### Running with Docker
-
-1. Build the Docker Image:
-
-`docker build -t guestbook .`
-2. Run the Docker Container:
-`docker run -p 5000:5000 guestbook`
-3. Open your browser and navigate to <http://localhost:5000>.
-### Troubleshooting
-If you encounter issues during the Docker build (e.g., hanging during the `pip install` step):
-- Use the Host Network:
-`docker build --network=host -t guestbook .`
-- Clear the Docker Build Cache:
-`docker builder prune`
-## Future Improvements
-- Persistent Storage: Implement Docker volumes or a more robust database for data persistence.
-- Enhanced Security: Add input validation, sanitization, and CSRF protection.
-- Feature Expansion: Integrate additional museum kiosk features or analytics.
-
-## License
-TBD
+## Getting Started
+Prerequisites
+- Docker
+- Docker Compose
+### Building and Running the Application
+### Build and Start Containers:
+1. From the project root, run:
+`docker-compose up --build -d`
+This command will build the Docker image, start the container in detached mode, and mount the persistent volume at /data for the SQLite database.
+2. Access the Application:
+Open a web browser and navigate to http://<your-server-ip>:8000 (or the port specified in your .env file).
+### Deployment with Docker Compose
+The `docker-compose.yml` is configured to:
+ -Build the image from the Dockerfile.
+- Expose the service on the specified port.
+- Mount a volume (named `guestbook_data`) at `/data` to persist your database.
+- Load environment variables from the `.env` file
+### Logging and Monitoring
+- The application uses Python's built-in logging module.
+- Key events (like database initialization, form submissions, and validation errors) are logged.
+- Logs can be viewed by running:
+`docker-compose logs -f`
+## Additional Notes
+- Intranet-Only Deployment:
+This application is designed for internal use only. It is not exposed to the public internet.
+- Database Persistence:
+The SQLite database is stored in a Docker volume (guestbook_data), ensuring that data persists even if containers are rebuilt.
+- Production Considerations:
+The app runs with Gunicorn as a production-ready WSGI server. Make sure to adjust worker counts and resource limits as needed based on your server’s specifications.
