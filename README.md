@@ -74,6 +74,9 @@ The `docker-compose.yml` is configured to:
 - Logs can be viewed by running:
 `docker-compose logs -f`
 
+### API Access
+
+You can access the API to export contacts by navigating your web browser to `http://<your-server-ip>:8000/guests/api`. Uses a Flask API Endpoint, and can be integrated with on prem automation tools like n8n. 
 ## Additional Notes
 
 - Intranet-Only Deployment:
