@@ -25,4 +25,8 @@ jobs:
           docker build . --file Dockerfile --tag $IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 # Uncomment below to push the image to Docker Hub (or another registry)
-#- name: Push the Docker image
+      - name: Push the Docker image
+        if: github.event_name == 'push'
+        run: |
+          docker tag $IMAGE_TAG snachodog/kiosk-guestbook:latest
+          docker push snachodog/kiosk-guestbook:latest
