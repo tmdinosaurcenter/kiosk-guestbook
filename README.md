@@ -22,7 +22,7 @@ The application’s title and logo can be dynamically configured via environment
 
 ### Project Structure
 
-```
+``` bash
 kiosk-guestbook/
 ├── app.py                          # Main Flask application code
 ├── Dockerfile                      # Dockerfile for building the image
@@ -54,8 +54,8 @@ kiosk-guestbook/
 
 Before proceeding, you’ll need to have the example configuration files. These files—example.docker-compose.yml and example.env—are included in the repository. You can download them by cloning the entire repository:
 
-```
-git clone <https://github.com/tmdinosaurcenter/kiosk-guestbook.git>
+```bash
+git clone https://github.com/tmdinosaurcenter/kiosk-guestbook.git
 cd kiosk-guestbook
 ```
 
@@ -66,12 +66,12 @@ If you don’t wish to clone the entire repo, you can also download the two file
 1. Copy Example Files:
 From the project root, copy the example files:
 
-```
+``` bash
 cp example.docker-compose.yml docker-compose.yml
 cp example.env .env
 ```
 
-2. **Edit the `.env` File (Optional):**
+2. **Edit the `.env` File (Optional)**
 
 Modify `.env` to customize settings such as `SITE_TITLE`, `LOGO_URL`, `PORT`, etc.
 
@@ -83,16 +83,32 @@ Run the following command to pull (or use) the pre-built image and start the con
 
 This command starts the container in detached mode, mounts the persistent volume for the SQLite database, and uses your environment variable settings.
 
-4. **Access the Application:**
+4. **Access the Application**
 
 Open your browser and navigate to `http://<your-server-ip>:8000` (or the port specified in your `.env` file).
 
 ### Method 2: Running in Portainer
 
-1.
-2.
-3.
-4.
+1. **Copy Example Files**
+
+```bash
+cp example.docker-compose.yml docker-compose.yml
+cp example.env stack.env
+```
+
+*Note*: Portainer expects the environment file to be named stack.env rather than .env
+
+2. **Edit `docker-compose.yml`**
+In the `docker-compose.yml` file, update the environment file reference from `.env` to `stack.env`
+
+3. **Deploy via Portainer**
+
+   - Log in to Portainer and navigate to the "Stacks" section.
+   - Create a new stack and upload or paste your modified docker-compose.yml along with the `stack.env` file.
+   - Deploy the stack. Portainer will use stack.env for the environment variables.
+
+4. **Access the Application:**
+Once deployed, open your browser and navigate to http://<your-server-ip>:8000 (or your specified port) to view the application.
 
 ## Logging and Monitoring
 
@@ -106,21 +122,21 @@ Open your browser and navigate to `http://<your-server-ip>:8000` (or the port sp
 
 Access the API endpoint to export guest entries by navigating to:
 
-`http://<your-server-ip>:8000/guests/api`
+`http://your-server-ip:8000/guests/api`
 
 This endpoint can be integrated with on-prem automation tools like n8n.
 
 ## Additional Notes
 
-- **Intranet-Only Deployment:**
+- **Intranet-Only Deployment**
 This application is designed for internal use only and is not exposed to the public internet.
 
-- **Database Persistence:**
+- **Database Persistence**
 The SQLite database is stored in a Docker volume (guestbook_data), ensuring that data persists even if containers are rebuilt.
 
-- **Production Considerations:**
+- **Production Considerations**
 The app runs with Gunicorn as a production-ready WSGI server. Adjust worker counts and resource limits as needed based on your server’s specifications.
 
-## License:
-This project is licensed under the [MIT License](LICENSE).
+## License
 
+This project is licensed under the [MIT License](LICENSE).
