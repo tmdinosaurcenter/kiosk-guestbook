@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  guestbook:
+    image: snachodog/kiosk-guestbook:latest
+    container_name: guestbook
+    ports:
+      - "${PORT:-8000}:8000"
+    env_file:
+      - .env
+    volumes:
+      # Mount your local directory to persist data; adjust if you prefer a named volume
+      - /path/to/guestbook_data:/data
+
+volumes:
+  guestbook_data:
