@@ -41,7 +41,7 @@
 <body>
     <div class="container mt-5 mb-5">
         <header class="d-flex align-items-center mb-4">
-            <img src="static/images/logo.png" alt="Logo" class="me-3" style="height: 50px;" />
+            <img src="${LOGO_URL}" alt="Logo" class="me-3" style="height: 50px;" />
             <h1 class="h3 mb-0">${SITE_TITLE}</h1>
         </header>
 
@@ -76,7 +76,7 @@
                     <input class="form-check-input" type="checkbox" name="newsletter_opt_in" id="newsletter_opt_in"
                         checked />
                     <label class="form-check-label" for="newsletter_opt_in">
-                        Subscribe me to the TMDC newsletter
+                        Subscribe our newsletter
                     </label>
                 </div>
             </div>

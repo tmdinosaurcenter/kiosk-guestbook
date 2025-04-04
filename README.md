@@ -8,36 +8,38 @@ A simple Flask-based guestbook application designed for an internal museum kiosk
 
 - Dynamic Form Behavior:
 The comment field is hidden by default and only revealed when the first name, last name, and location fields each contain at least 3 characters.
--Input Validation:
-Ensures required fields (first name, last name, and location) are filled.
-- Validates email format (if provided).
+- Input Validation:
+Ensures required fields (first name, last name, and location) are filled and validates email format (if provided).
 Uses a profanity filter loaded from en.txt to prevent inappropriate language in comments.
 - Logging:
-Logs key events and validation errors to help with debugging and monitoring.
+Logs key events and validation errors for debugging and monitoring.
 - SQLite Database:
 Stores guest entries locally, with persistence ensured by mounting a Docker volume.
 - Containerized Deployment:
-Uses Docker and Docker Compose to create a production-ready environment with Gunicorn as the WSGI server.
+Uses Docker and Docker Compose for a production-ready environment with Gunicorn as the WSGI server.
+- Configurable Template:
+The application’s title and logo can be dynamically configured via environment variables without rebuilding the image.
 
-## Project Structure
+### Project Structure
 
-``` bash
+```
 kiosk-guestbook/
+├── app.py                          # Main Flask application code
+├── Dockerfile                      # Dockerfile for building the image
+├── docker-compose.yml              # Docker Compose configuration (see deployment instructions below)
+├── example.docker-compose.yml      # Example Docker Compose file for deployment
+├── example.env                     # Example environment variable file
+├── entrypoint.sh                   # Entrypoint script that processes templates and starts Gunicorn
+├── en.txt                          # Profanity list file (one banned word per line)
+├── README.md                       # Project documentation
+├── requirements.txt                # Python dependencies (Flask, Gunicorn, etc.)
 ├── scripts/
-│   └── guestbook_export.py    # Script to export guest entries (e.g., for Mailchimp)
+│   └── guestbook_export.py         # Script to export guest entries to CSV (e.g., for Mailchimp)
 ├── static/
 │   └── images/
-│       └── logo.png           # Logo for display in the application
-├── templates/
-│   └── index.html             # Main HTML template for the guestbook
-├── .env                       # Environment variables for Docker Compose (production settings)
-├── app.py                     # Main Flask application code
-├── docker-compose.yml         # Docker Compose configuration for container orchestration
-├── Dockerfile                 # Default Dockerfile (development or general usage)
-├── en.txt                     # Profanity list file (one banned word per line)
-├── development.Dockerfile      # Optional Dockerfile optimized for production
-├── README.md                  # Project documentation
-└── requirements.txt           # Python dependencies (Flask, Gunicorn, etc.)
+│       └── logo.png                # Default logo for display in the application (configurable via env variable)
+└── templates/
+    └── index.html.template         # HTML template for the guestbook page (processed to index.html at runtime)
 ```
 
 ## Getting Started
@@ -46,43 +48,79 @@ kiosk-guestbook/
 
 - Docker
 - Docker Compose
+- Optionally, Portainer for GUI-based container management
 
-### Building and Running the Application
+## Running the Application
 
-### Build and Start Containers
+Before proceeding, you’ll need to have the example configuration files. These files—example.docker-compose.yml and example.env—are included in the repository. You can download them by cloning the entire repository:
 
-1. From the project root, run:
-`docker-compose up --build -d`
-This command will build the Docker image, start the container in detached mode, and mount the persistent volume at `/data` for the SQLite database.
+```
+git clone <https://github.com/tmdinosaurcenter/kiosk-guestbook.git>
+cd kiosk-guestbook
+```
 
-2. Access the Application:
-Open a web browser and navigate to `http://<your-server-ip>:8000` (or the port specified in your .env file).
+If you don’t wish to clone the entire repo, you can also download the two files individually from GitHub. Once you have them, follow the steps below.
 
-### Deployment with Docker Compose
+### Method 1: Using Docker on the CLI
 
-The `docker-compose.yml` is configured to:
+1. Copy Example Files:
+From the project root, copy the example files:
 
-- Build the image from the Dockerfile.
-- Expose the service on the specified port.
-- Mount a volume (named `guestbook_data`) at `/data` to persist your database.
-- Load environment variables from the `.env` file
+```
+cp example.docker-compose.yml docker-compose.yml
+cp example.env .env
+```
 
-### Logging and Monitoring
+2. **Edit the `.env` File (Optional):**
+
+Modify `.env` to customize settings such as `SITE_TITLE`, `LOGO_URL`, `PORT`, etc.
+
+3. **Start the Application**
+
+Run the following command to pull (or use) the pre-built image and start the container:
+
+`docker-compose up -d`
+
+This command starts the container in detached mode, mounts the persistent volume for the SQLite database, and uses your environment variable settings.
+
+4. **Access the Application:**
+
+Open your browser and navigate to `http://<your-server-ip>:8000` (or the port specified in your `.env` file).
+
+### Method 2: Running in Portainer
+
+1.
+2.
+3.
+4.
+
+## Logging and Monitoring
 
 - The application uses Python's built-in logging module.
-- Key events (like database initialization, form submissions, and validation errors) are logged.
-- Logs can be viewed by running:
+- Key events, such as database initialization, form submissions, and validation errors, are logged.
+- View logs with:
+
 `docker-compose logs -f`
 
-### API Access
+## API Access
 
-You can access the API to export contacts by navigating your web browser to `http://<your-server-ip>:8000/guests/api`. Uses a Flask API Endpoint, and can be integrated with on prem automation tools like n8n. 
+Access the API endpoint to export guest entries by navigating to:
+
+`http://<your-server-ip>:8000/guests/api`
+
+This endpoint can be integrated with on-prem automation tools like n8n.
+
 ## Additional Notes
 
-- Intranet-Only Deployment:
-This application is designed for internal use only. It is not exposed to the public internet.
-- Database Persistence:
-The SQLite database is stored in a Docker volume (guestbook_data), ensuring that data persists even if containers are rebuilt.
-- Production Considerations:
+- **Intranet-Only Deployment:**
+This application is designed for internal use only and is not exposed to the public internet.
 
-The app runs with Gunicorn as a production-ready WSGI server. Make sure to adjust worker counts and resource limits as needed based on your server’s specifications.
+- **Database Persistence:**
+The SQLite database is stored in a Docker volume (guestbook_data), ensuring that data persists even if containers are rebuilt.
+
+- **Production Considerations:**
+The app runs with Gunicorn as a production-ready WSGI server. Adjust worker counts and resource limits as needed based on your server’s specifications.
+
+## License:
+This project is licensed under the [MIT License](LICENSE).
+
