@@ -20,28 +20,6 @@ Uses Docker and Docker Compose for a production-ready environment with Gunicorn 
 - Configurable Template:
 The application’s title and logo can be dynamically configured via environment variables without rebuilding the image.
 
-### Project Structure
-
-``` bash
-kiosk-guestbook/
-├── app.py                          # Main Flask application code
-├── Dockerfile                      # Dockerfile for building the image
-├── docker-compose.yml              # Docker Compose configuration (see deployment instructions below)
-├── example.docker-compose.yml      # Example Docker Compose file for deployment
-├── example.env                     # Example environment variable file
-├── entrypoint.sh                   # Entrypoint script that processes templates and starts Gunicorn
-├── en.txt                          # Profanity list file (one banned word per line)
-├── README.md                       # Project documentation
-├── requirements.txt                # Python dependencies (Flask, Gunicorn, etc.)
-├── scripts/
-│   └── guestbook_export.py         # Script to export guest entries to CSV (e.g., for Mailchimp)
-├── static/
-│   └── images/
-│       └── logo.png                # Default logo for display in the application (configurable via env variable)
-└── templates/
-    └── index.html.template         # HTML template for the guestbook page (processed to index.html at runtime)
-```
-
 ## Getting Started
 
 ### Prerequisites
