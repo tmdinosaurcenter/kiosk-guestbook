@@ -73,7 +73,6 @@ with app.app_context():
 
 @app.route('/', methods=['GET', 'POST'])
 # TODO: No rate limiting — form can be spammed. Add Flask-Limiter (e.g. @limiter.limit("10/minute")).
-# TODO: No CSRF protection. Add Flask-WTF for CSRF tokens.
 def index():
     error = None
     if request.method == 'POST':
