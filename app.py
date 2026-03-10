@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import sqlite3
 import re
 import logging
@@ -10,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db')
+limiter = Limiter(get_remote_address, app=app, default_limits=[])
 
 def load_banned_words():
     banned_words = set()
@@ -72,7 +75,7 @@ with app.app_context():
     init_db()
 
 @app.route('/', methods=['GET', 'POST'])
-# TODO: No rate limiting — form can be spammed. Add Flask-Limiter (e.g. @limiter.limit("10/minute")).
+@limiter.limit("5 per minute", methods=["POST"])
 def index():
     error = None
     if request.method == 'POST':
