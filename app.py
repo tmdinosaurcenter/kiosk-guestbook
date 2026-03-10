@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from email_validator import validate_email, EmailNotValidError
 import sqlite3
-import re
 import logging
 import os
 
@@ -67,9 +67,11 @@ def init_db():
     logger.info("Database initialized.")
 
 def is_valid_email(email):
-    # TODO: This regex allows edge cases like consecutive dots and leading/trailing hyphens. Consider using the `email-validator` package.
-    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-    return re.match(pattern, email)
+    try:
+        validate_email(email, check_deliverability=False)
+        return True
+    except EmailNotValidError:
+        return False
 
 with app.app_context():
     init_db()
