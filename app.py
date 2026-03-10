@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
+from flask import Flask, render_template, request, redirect, url_for, jsonify, abort, Response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from email_validator import validate_email, EmailNotValidError
+from functools import wraps
 import sqlite3
 import logging
 import os
@@ -177,9 +178,58 @@ def index():
     logger.info("Rendering index with %d guests.", len(guests))
     return render_template('index.html', error=error, guests=guests)
 
-# TODO: Add an admin interface for reviewing and deleting guest entries.
-# Should include: paginated entry list, per-entry delete, and authentication
-# (e.g. HTTP Basic Auth or a simple token) to restrict access.
+def require_admin_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        admin_user = os.environ.get('ADMIN_USER', '')
+        admin_password = os.environ.get('ADMIN_PASSWORD', '')
+        if not auth or auth.username != admin_user or auth.password != admin_password:
+            return Response(
+                'Authentication required.',
+                401,
+                {'WWW-Authenticate': 'Basic realm="Admin"'}
+            )
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route('/admin')
+@require_admin_auth
+def admin():
+    page = request.args.get('page', 1, type=int)
+    per_page = 25
+    offset = (page - 1) * per_page
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        total = c.execute('SELECT COUNT(*) FROM guests').fetchone()[0]
+        c.execute('''
+            SELECT id, first_name, last_name, email, location, comment, newsletter_opt_in, timestamp
+            FROM guests ORDER BY id DESC LIMIT ? OFFSET ?
+        ''', (per_page, offset))
+        guests = c.fetchall()
+        conn.close()
+    except sqlite3.Error as e:
+        logger.error("Database error in admin: %s", e)
+        guests = []
+        total = 0
+    total_pages = (total + per_page - 1) // per_page
+    return render_template('admin.html', guests=guests, page=page, total_pages=total_pages, total=total)
+
+@app.route('/admin/delete/<int:entry_id>', methods=['POST'])
+@require_admin_auth
+def admin_delete(entry_id):
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('DELETE FROM guests WHERE id = ?', (entry_id,))
+        conn.commit()
+        conn.close()
+        logger.info("Admin deleted guest entry id=%d", entry_id)
+    except sqlite3.Error as e:
+        logger.error("Database error deleting guest %d: %s", entry_id, e)
+    return redirect(url_for('admin', page=request.args.get('page', 1)))
+
 @app.route('/api/guests', methods=['GET'])
 def api_guests():
     api_key = request.headers.get('X-API-Key')
