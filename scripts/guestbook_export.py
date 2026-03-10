@@ -1,9 +1,8 @@
 import csv
+import os
 import sqlite3
 
-# TODO: Hardcoded relative path — breaks if script is run from a different directory.
-# Replace with: DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db') and import os.
-DATABASE = 'guestbook.db'
+DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db')
 EXPORT_FILE = 'mailchimp_export.csv'
 
 def export_guestbook_to_csv():

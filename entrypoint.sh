@@ -4,5 +4,4 @@
 envsubst < /app/templates/index.html.template > /app/templates/index.html
 
 # Start Gunicorn; using an environment variable for workers (default is 3)
-# TODO: Variable mismatch — example.env sets GUNICORN_WORKERS but this reads WORKERS. Change to ${GUNICORN_WORKERS:-3}.
-exec gunicorn --bind 0.0.0.0:8000 app:app --workers ${WORKERS:-3}
+exec gunicorn --bind 0.0.0.0:8000 app:app --workers ${GUNICORN_WORKERS:-3}
