@@ -57,6 +57,8 @@ def init_db():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_guests_id ON guests (id DESC)')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_guests_email ON guests (email)')
     conn.commit()
     conn.close()
     logger.info("Database initialized.")
@@ -96,9 +98,8 @@ def index():
         if error:
             conn = sqlite3.connect(DATABASE)
             c = conn.cursor()
-            # TODO: No LIMIT — returns all rows. Add LIMIT 100 or similar.
             # TODO: No error handling — a locked/corrupted DB returns an unhandled 500. Wrap in try/except.
-            c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
+            c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
             guests = c.fetchall()
             conn.close()
             return render_template('index.html', error=error, guests=guests)
@@ -120,9 +121,7 @@ def index():
 
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    # TODO: No LIMIT — returns all rows forever. Add LIMIT 100 or similar to avoid memory growth.
-    # TODO: No indexes on this table — full table scan on every page load. Add index on id/timestamp.
-    c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
+    c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
     guests = c.fetchall()
     conn.close()
     logger.info("Rendering index with %d guests.", len(guests))
