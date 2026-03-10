@@ -5,6 +5,7 @@ from email_validator import validate_email, EmailNotValidError
 import sqlite3
 import logging
 import os
+import re
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -36,11 +37,17 @@ def load_banned_words():
 BANNED_WORDS = load_banned_words()
 
 def contains_banned_words(text):
-    # TODO: This filter is easily bypassed (spacing, leet-speak, numbers). Consider a more robust NLP-based approach.
-    words = text.lower().split()
-    for word in words:
-        word_clean = word.strip(".,!?;:\"'")
-        if word_clean in BANNED_WORDS:
+    lower = text.lower()
+    # Whole-word check (punctuation-stripped) — catches exact matches
+    for word in lower.split():
+        if word.strip(".,!?;:\"'") in BANNED_WORDS:
+            return True
+    # Normalized substring check — catches spacing tricks (f u c k) and
+    # embedded forms (fucking). Note: may produce false positives on words
+    # that contain a banned word as a substring (e.g. "classic" → "ass").
+    normalized = re.sub(r'[^a-z]', '', lower)
+    for banned in BANNED_WORDS:
+        if banned in normalized:
             return True
     return False
 
