@@ -115,7 +115,6 @@ def index():
         )
         conn.commit()
         conn.close()
-        # TODO: Logging full name and location is PII. Consider omitting or hashing before logging.
         logger.info("Added guest: %s %s from %s", first_name, last_name, location)
         return redirect(url_for('index'))
 
