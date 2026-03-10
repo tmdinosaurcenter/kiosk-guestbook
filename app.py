@@ -177,6 +177,9 @@ def index():
     logger.info("Rendering index with %d guests.", len(guests))
     return render_template('index.html', error=error, guests=guests)
 
+# TODO: Add an admin interface for reviewing and deleting guest entries.
+# Should include: paginated entry list, per-entry delete, and authentication
+# (e.g. HTTP Basic Auth or a simple token) to restrict access.
 @app.route('/api/guests', methods=['GET'])
 def api_guests():
     api_key = request.headers.get('X-API-Key')
