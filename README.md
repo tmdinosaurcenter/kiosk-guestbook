@@ -98,9 +98,29 @@ Once deployed, open your browser and navigate to http://<your-server-ip>:8000 (o
 
 ## Admin Interface
 
-A password-protected admin panel is available at `/admin`. It displays all guest entries in a paginated table and allows individual entries to be deleted.
+A password-protected admin panel is available at `/admin`. It displays all guest entries in a paginated table and allows individual entries to be deleted. Authentication uses session cookies with an HTML login form — logging out fully invalidates the session so credentials are never cached by the browser.
 
-Access requires `ADMIN_USER` and `ADMIN_PASSWORD` to be set in your `.env`. If either variable is missing, the admin interface will return a 503 error rather than allowing access with blank credentials.
+Access requires `ADMIN_USER`, `ADMIN_PASSWORD`, and `SECRET_KEY` to be set in your `.env`. If either of the admin credentials are missing the interface returns 503. If `SECRET_KEY` is not set a default development key is used, which is insecure in production — always set your own.
+
+### Generating a `SECRET_KEY`
+
+Use Python to generate a cryptographically random key:
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Paste the output as the value for `SECRET_KEY` in your `.env`.
+
+### User Roles
+
+The bootstrap superadmin (set via `ADMIN_USER` / `ADMIN_PASSWORD`) can manage additional users at `/admin/users`:
+
+| Role       | View entries | Delete entries | Manage users |
+| ---------- | :----------: | :------------: | :----------: |
+| superadmin | ✓            | ✓              | ✓            |
+| admin      | ✓            | ✓              | —            |
+| viewer     | ✓            | —              | —            |
 
 ## API Access
 
@@ -112,14 +132,28 @@ Set the `API_KEY` variable in your `.env` and pass it in requests as the `X-API-
 
 ## Upgrading
 
-When upgrading from a previous version, compare your `.env` against `example.env` to check for newly required variables. As of v2.1.0, the following variables are required if you want to use the admin interface:
+When upgrading from a previous version, compare your `.env` against `example.env` to check for newly required variables.
+
+As of **v2.1.0**, the following variables are required for the admin interface:
 
 ```env
 ADMIN_USER=admin
 ADMIN_PASSWORD=changeme
 ```
 
-Replace the placeholder values with your own credentials before deploying.
+As of **v2.3.0**, a `SECRET_KEY` is also required for session-based authentication:
+
+```env
+SECRET_KEY=your-random-secret-key-here
+```
+
+Generate one with:
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Replace all placeholder values with your own before deploying.
 
 ## Additional Notes
 
