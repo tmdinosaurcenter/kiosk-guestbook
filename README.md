@@ -96,13 +96,30 @@ Once deployed, open your browser and navigate to http://<your-server-ip>:8000 (o
 
 `docker-compose logs -f`
 
+## Admin Interface
+
+A password-protected admin panel is available at `/admin`. It displays all guest entries in a paginated table and allows individual entries to be deleted.
+
+Access requires `ADMIN_USER` and `ADMIN_PASSWORD` to be set in your `.env`. If either variable is missing, the admin interface will return a 503 error rather than allowing access with blank credentials.
+
 ## API Access
 
 Access the API endpoint to export guest entries by navigating to:
 
-`http://your-server-ip:8000/guests/api`
+`http://your-server-ip:8000/api/guests`
 
-This endpoint can be integrated with on-prem automation tools like n8n.
+Set the `API_KEY` variable in your `.env` and pass it in requests as the `X-API-Key` header. This endpoint can be integrated with on-prem automation tools like n8n.
+
+## Upgrading
+
+When upgrading from a previous version, compare your `.env` against `example.env` to check for newly required variables. As of v2.1.0, the following variables are required if you want to use the admin interface:
+
+```env
+ADMIN_USER=admin
+ADMIN_PASSWORD=changeme
+```
+
+Replace the placeholder values with your own credentials before deploying.
 
 ## Additional Notes
 

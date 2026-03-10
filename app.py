@@ -181,9 +181,12 @@ def index():
 def require_admin_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        admin_user = os.environ.get('ADMIN_USER')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+        if not admin_user or not admin_password:
+            logger.error("ADMIN_USER and ADMIN_PASSWORD must be set to enable the admin interface.")
+            abort(503)
         auth = request.authorization
-        admin_user = os.environ.get('ADMIN_USER', '')
-        admin_password = os.environ.get('ADMIN_PASSWORD', '')
         if not auth or auth.username != admin_user or auth.password != admin_password:
             return Response(
                 'Authentication required.',
