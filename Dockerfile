@@ -24,10 +24,13 @@ ENV FLASK_ENV=production
 # Expose the port (Gunicorn will run on 8000)
 EXPOSE 8000
 
-# TODO: No USER directive — container runs as root. Add a non-root user for security.
-# example.env has PID/GID=1000 vars suggesting this was intended. e.g.:
-#   RUN useradd -u 1000 -g 1000 appuser && chown -R appuser /app /data
-#   USER appuser
+# Create a non-root user. UID/GID match the PID/GID vars in example.env (default 1000).
+# Override at build time with: docker build --build-arg UID=1001 --build-arg GID=1001
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} appuser && useradd -u ${UID} -g ${GID} -s /bin/sh -M appuser
+RUN chown -R appuser:appuser /app /entrypoint.sh
+USER appuser
 
 # Use the entrypoint script as the container's command
 CMD ["/entrypoint.sh"]
