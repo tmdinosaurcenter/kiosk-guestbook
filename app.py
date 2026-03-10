@@ -33,6 +33,7 @@ def load_banned_words():
 BANNED_WORDS = load_banned_words()
 
 def contains_banned_words(text):
+    # TODO: This filter is easily bypassed (spacing, leet-speak, numbers). Consider a more robust NLP-based approach.
     words = text.lower().split()
     for word in words:
         word_clean = word.strip(".,!?;:\"'")
@@ -41,6 +42,7 @@ def contains_banned_words(text):
     return False
 
 def init_db():
+    # TODO: No schema versioning — adding columns in the future requires manual DB updates. Consider a migration tool (e.g. Alembic).
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     c.execute('''
@@ -60,14 +62,19 @@ def init_db():
     logger.info("Database initialized.")
 
 def is_valid_email(email):
+    # TODO: This regex allows edge cases like consecutive dots and leading/trailing hyphens. Consider using the `email-validator` package.
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email)
 
+# TODO: @before_first_request is deprecated in Flask 2.2 and removed in Flask 3.0.
+# Replace with: with app.app_context(): init_db() at module level, or use a CLI command.
 @app.before_first_request
 def initialize_database():
     init_db()
 
 @app.route('/', methods=['GET', 'POST'])
+# TODO: No rate limiting — form can be spammed. Add Flask-Limiter (e.g. @limiter.limit("10/minute")).
+# TODO: No CSRF protection. Add Flask-WTF for CSRF tokens.
 def index():
     error = None
     if request.method == 'POST':
@@ -92,6 +99,8 @@ def index():
         if error:
             conn = sqlite3.connect(DATABASE)
             c = conn.cursor()
+            # TODO: No LIMIT — returns all rows. Add LIMIT 100 or similar.
+            # TODO: No error handling — a locked/corrupted DB returns an unhandled 500. Wrap in try/except.
             c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
             guests = c.fetchall()
             conn.close()
@@ -108,11 +117,14 @@ def index():
         )
         conn.commit()
         conn.close()
+        # TODO: Logging full name and location is PII. Consider omitting or hashing before logging.
         logger.info("Added guest: %s %s from %s", first_name, last_name, location)
         return redirect(url_for('index'))
 
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
+    # TODO: No LIMIT — returns all rows forever. Add LIMIT 100 or similar to avoid memory growth.
+    # TODO: No indexes on this table — full table scan on every page load. Add index on id/timestamp.
     c.execute('SELECT first_name, location FROM guests ORDER BY id DESC')
     guests = c.fetchall()
     conn.close()

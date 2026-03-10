@@ -23,12 +23,12 @@
         .scrolling-content {
             display: inline-block;
             padding: 10px;
-            animation: scroll-left 20s linear infinite;
+            animation: scroll-left linear infinite;
         }
 
         @keyframes scroll-left {
             0% {
-                transform: translateX(100%);
+                transform: translateX(100vw);
             }
 
             100% {
@@ -106,6 +106,22 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- Set scrolling speed to a fixed pixels-per-second rate -->
+    <script>
+        (function () {
+            const pixelsPerSecond = 80;
+            const content = document.querySelector(".scrolling-content");
+
+            function updateScrollSpeed() {
+                const totalDistance = window.innerWidth + content.offsetWidth;
+                content.style.animationDuration = (totalDistance / pixelsPerSecond) + "s";
+            }
+
+            updateScrollSpeed();
+            window.addEventListener("resize", updateScrollSpeed);
+        })();
+    </script>
 
     <!-- JavaScript to reveal the comment field -->
     <script>
