@@ -1,7 +1,8 @@
 import csv
 import sqlite3
 
-# Update the database file path if needed.
+# TODO: Hardcoded relative path — breaks if script is run from a different directory.
+# Replace with: DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db') and import os.
 DATABASE = 'guestbook.db'
 EXPORT_FILE = 'mailchimp_export.csv'
 

@@ -24,5 +24,10 @@ ENV FLASK_ENV=production
 # Expose the port (Gunicorn will run on 8000)
 EXPOSE 8000
 
+# TODO: No USER directive — container runs as root. Add a non-root user for security.
+# example.env has PID/GID=1000 vars suggesting this was intended. e.g.:
+#   RUN useradd -u 1000 -g 1000 appuser && chown -R appuser /app /data
+#   USER appuser
+
 # Use the entrypoint script as the container's command
 CMD ["/entrypoint.sh"]
