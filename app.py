@@ -284,6 +284,15 @@ def admin_delete(entry_id):
         logger.error("Database error deleting guest %d: %s", entry_id, e)
     return redirect(url_for('admin', page=request.args.get('page', 1)))
 
+@app.route('/admin/logout')
+def admin_logout():
+    return Response(
+        '<p style="font-family:sans-serif">You have been logged out. '
+        '<a href="/admin">Log in again</a></p>',
+        401,
+        {'WWW-Authenticate': 'Basic realm="Admin"', 'Content-Type': 'text/html'}
+    )
+
 @app.route('/admin/users')
 @require_superadmin
 def admin_users():

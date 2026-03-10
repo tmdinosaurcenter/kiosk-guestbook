@@ -15,6 +15,7 @@
                 {% if current_role == 'superadmin' %}
                 <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary btn-sm">Manage Users</a>
                 {% endif %}
+                <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
             </div>
         </div>
 
