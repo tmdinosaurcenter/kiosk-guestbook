@@ -30,3 +30,13 @@ jobs:
         run: |
           docker tag $IMAGE_TAG snachodog/kiosk-guestbook:latest
           docker push snachodog/kiosk-guestbook:latest
+      - name: Notify via ntfy
+        if: github.event_name == 'push'
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        run: |
+          curl -s -o /dev/null \
+            -H "Title: kiosk-guestbook image pushed to Docker Hub" \
+            -H "Tags: white_check_mark" \
+            -d "The kiosk-guestbook container has been pushed to Docker Hub and is ready to pull. Commit: ${{ github.sha }} — ${{ github.event.head_commit.message }}" \
+            "$NTFY_URL"
