@@ -23,16 +23,17 @@
         .scrolling-content {
             display: inline-block;
             padding: 10px;
+            font-size: 1.25rem;
             animation: scroll-left linear infinite;
         }
 
         @keyframes scroll-left {
             0% {
-                transform: translateX(100vw);
+                transform: translateX(0);
             }
 
             100% {
-                transform: translateX(-100%);
+                transform: translateX(-50%);
             }
         }
     </style>
@@ -97,10 +98,16 @@
     </div>
 
     <!-- Scrolling Guest Entries at the Bottom -->
+    <!-- Content is duplicated so the loop is seamless: animate 0 → -50% -->
     <div class="scrolling-wrapper">
         <div class="scrolling-content">
             {% for guest in guests %}
-            <span class="me-4">
+            <span class="me-5">
+                <strong>{{ guest[0] }}</strong> from {{ guest[1] }}
+            </span>
+            {% endfor %}
+            {% for guest in guests %}
+            <span class="me-5">
                 <strong>{{ guest[0] }}</strong> from {{ guest[1] }}
             </span>
             {% endfor %}
@@ -114,8 +121,9 @@
             const content = document.querySelector(".scrolling-content");
 
             function updateScrollSpeed() {
-                const totalDistance = window.innerWidth + content.offsetWidth;
-                content.style.animationDuration = (totalDistance / pixelsPerSecond) + "s";
+                // Travel distance is half the total width (one copy of the list)
+                const oneCopyWidth = content.offsetWidth / 2;
+                content.style.animationDuration = (oneCopyWidth / pixelsPerSecond) + "s";
             }
 
             updateScrollSpeed();
