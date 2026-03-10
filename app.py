@@ -66,10 +66,7 @@ def is_valid_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email)
 
-# TODO: @before_first_request is deprecated in Flask 2.2 and removed in Flask 3.0.
-# Replace with: with app.app_context(): init_db() at module level, or use a CLI command.
-@app.before_first_request
-def initialize_database():
+with app.app_context():
     init_db()
 
 @app.route('/', methods=['GET', 'POST'])
