@@ -10,7 +10,10 @@
     <div class="container py-4" style="max-width: 700px;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0">User Management</h1>
-            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary btn-sm">Back to Entries</a>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary btn-sm">Back to Entries</a>
+                <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+            </div>
         </div>
 
         <div class="card mb-4">
