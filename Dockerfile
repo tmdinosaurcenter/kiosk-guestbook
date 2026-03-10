@@ -4,8 +4,8 @@ FROM python:3.9-slim
 # Set the working directory
 WORKDIR /app
 
-# Install system dependencies (including gettext for envsubst)
-RUN apt-get update && apt-get install -y gettext && rm -rf /var/lib/apt/lists/*
+# Install system dependencies (including gettext for envsubst and gosu for privilege dropping)
+RUN apt-get update && apt-get install -y gettext gosu && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -30,7 +30,7 @@ ARG UID=1000
 ARG GID=1000
 RUN groupadd -g ${GID} appuser && useradd -u ${UID} -g ${GID} -s /bin/sh -M appuser
 RUN chown -R appuser:appuser /app /entrypoint.sh
-USER appuser
+# Entrypoint runs as root, fixes volume permissions, then drops to appuser via gosu
 
 # Use the entrypoint script as the container's command
 CMD ["/entrypoint.sh"]
