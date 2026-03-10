@@ -35,7 +35,7 @@ jobs:
         env:
           NTFY_URL: ${{ secrets.NTFY_URL }}
         run: |
-          curl -s -o /dev/null \
+          curl -v \
             -H "Title: kiosk-guestbook image pushed to Docker Hub" \
             -H "Tags: white_check_mark" \
             -d "The kiosk-guestbook container has been pushed to Docker Hub and is ready to pull. Commit: ${{ github.sha }} — ${{ github.event.head_commit.message }}" \
