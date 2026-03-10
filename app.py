@@ -96,33 +96,46 @@ def index():
             logger.warning("Profanity detected in comment.")
 
         if error:
-            conn = sqlite3.connect(DATABASE)
-            c = conn.cursor()
-            # TODO: No error handling — a locked/corrupted DB returns an unhandled 500. Wrap in try/except.
-            c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
-            guests = c.fetchall()
-            conn.close()
+            try:
+                conn = sqlite3.connect(DATABASE)
+                c = conn.cursor()
+                c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
+                guests = c.fetchall()
+                conn.close()
+            except sqlite3.Error as e:
+                logger.error("Database error loading guests: %s", e)
+                guests = []
             return render_template('index.html', error=error, guests=guests)
 
-        conn = sqlite3.connect(DATABASE)
-        c = conn.cursor()
-        c.execute(
-            '''
-            INSERT INTO guests (first_name, last_name, email, location, comment, newsletter_opt_in)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ''',
-            (first_name, last_name, email, location, comment, newsletter_opt_in)
-        )
-        conn.commit()
-        conn.close()
+        try:
+            conn = sqlite3.connect(DATABASE)
+            c = conn.cursor()
+            c.execute(
+                '''
+                INSERT INTO guests (first_name, last_name, email, location, comment, newsletter_opt_in)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ''',
+                (first_name, last_name, email, location, comment, newsletter_opt_in)
+            )
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            logger.error("Database error saving guest: %s", e)
+            return render_template('index.html',
+                                   error="Unable to save your entry. Please try again.",
+                                   guests=[])
         logger.info("Added guest: %s %s from %s", first_name, last_name, location)
         return redirect(url_for('index'))
 
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
-    guests = c.fetchall()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
+        guests = c.fetchall()
+        conn.close()
+    except sqlite3.Error as e:
+        logger.error("Database error loading guests: %s", e)
+        guests = []
     logger.info("Rendering index with %d guests.", len(guests))
     return render_template('index.html', error=error, guests=guests)
 
@@ -132,16 +145,20 @@ def api_guests():
     if api_key != os.environ.get("API_KEY"):
         abort(403)
 
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute('''
-        SELECT first_name, last_name, email, location, comment, newsletter_opt_in, timestamp
-        FROM guests
-        WHERE email IS NOT NULL AND email != ''
-        ORDER BY id DESC
-    ''')
-    rows = c.fetchall()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('''
+            SELECT first_name, last_name, email, location, comment, newsletter_opt_in, timestamp
+            FROM guests
+            WHERE email IS NOT NULL AND email != ''
+            ORDER BY id DESC
+        ''')
+        rows = c.fetchall()
+        conn.close()
+    except sqlite3.Error as e:
+        logger.error("Database error in api_guests: %s", e)
+        return jsonify({"error": "Database unavailable"}), 503
 
     guests = [
         {
