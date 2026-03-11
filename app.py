@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sqlite3
+import threading
 
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
@@ -174,6 +175,22 @@ with app.app_context():
     migrate_db()
 
 # ---------------------------------------------------------------------------
+# Webhook
+# ---------------------------------------------------------------------------
+
+def _fire_webhook(payload):
+    url = os.environ.get("WEBHOOK_URL", "")
+    if not url:
+        return
+    try:
+        import urllib.request, json as _json
+        data = _json.dumps(payload).encode()
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=5)
+    except Exception as e:
+        logger.warning("Webhook delivery failed: %s", e)
+
+# ---------------------------------------------------------------------------
 # Public routes
 # ---------------------------------------------------------------------------
 
@@ -230,6 +247,13 @@ def index():
                                    error="Unable to save your entry. Please try again.",
                                    guests=[])
         logger.info("Added guest: %s %s from %s", first_name, last_name, location)
+        threading.Thread(target=_fire_webhook, args=({
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "location": location,
+            "newsletter_opt_in": newsletter_opt_in,
+        },), daemon=True).start()
         return redirect(url_for('index'))
 
     try:
