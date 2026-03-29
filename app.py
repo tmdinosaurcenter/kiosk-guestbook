@@ -3,7 +3,7 @@ import os
 import re
 import sqlite3
 import threading
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from email_validator import validate_email, EmailNotValidError
@@ -28,6 +28,21 @@ if not _secret_key:
 app.secret_key = _secret_key
 
 limiter = Limiter(get_remote_address, app=app, default_limits=[])
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    if request.path.startswith('/admin'):
+        response.headers['Cache-Control'] = 'no-store'
+    return response
 
 _DISPLAY_TZ = ZoneInfo('America/Denver')
 
