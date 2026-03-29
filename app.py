@@ -13,6 +13,7 @@ from flask_limiter.util import get_remote_address
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 )
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Set up logging
@@ -28,6 +29,7 @@ if not _secret_key:
 app.secret_key = _secret_key
 
 limiter = Limiter(get_remote_address, app=app, default_limits=[])
+csrf = CSRFProtect(app)
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
@@ -467,6 +469,7 @@ def admin_users_delete(user_id):
 
 @app.route('/api/guests', methods=['GET'])
 @limiter.limit("100 per hour")
+@csrf.exempt
 def api_guests():
     api_key = request.headers.get('X-API-Key')
     if api_key != os.environ.get("API_KEY"):

@@ -20,6 +20,7 @@
             <div class="card-header">Add User</div>
             <div class="card-body">
                 <form method="POST" action="{{ url_for('admin_users_add') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div class="row g-2">
                         <div class="col-sm-4">
                             <input type="text" name="username" class="form-control" placeholder="Username" required />
@@ -57,6 +58,7 @@
                     <td>
                         <form method="POST" action="{{ url_for('admin_users_delete', user_id=u[0]) }}"
                               onsubmit="return confirm('Remove user {{ u[1] }}?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                             <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                         </form>
                     </td>

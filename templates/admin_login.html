@@ -15,6 +15,7 @@
                 <div class="alert alert-danger py-2">{{ error }}</div>
                 {% endif %}
                 <form method="POST" action="{{ url_for('admin_login', next=request.args.get('next', '')) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" id="username" name="username" class="form-control"

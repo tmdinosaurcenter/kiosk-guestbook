@@ -47,6 +47,7 @@
                             {% if current_user.role != 'viewer' %}
                             <form method="POST" action="{{ url_for('admin_delete', entry_id=g[0]) }}?page={{ page }}"
                                   onsubmit="return confirm('Delete entry for {{ g[1] }} {{ g[2] }}?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                             {% endif %}
