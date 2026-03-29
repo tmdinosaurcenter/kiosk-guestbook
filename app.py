@@ -21,7 +21,11 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db')
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+_secret_key = os.environ.get('SECRET_KEY')
+if not _secret_key:
+    raise RuntimeError("SECRET_KEY environment variable must be set")
+app.secret_key = _secret_key
 
 limiter = Limiter(get_remote_address, app=app, default_limits=[])
 
