@@ -295,6 +295,7 @@ def _admin_configured():
     return bool(os.environ.get('ADMIN_USER') and os.environ.get('ADMIN_PASSWORD'))
 
 @app.route('/admin/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute", methods=["POST"])
 def admin_login():
     if not _admin_configured():
         abort(503)
@@ -450,6 +451,7 @@ def admin_users_delete(user_id):
 # ---------------------------------------------------------------------------
 
 @app.route('/api/guests', methods=['GET'])
+@limiter.limit("100 per hour")
 def api_guests():
     api_key = request.headers.get('X-API-Key')
     if api_key != os.environ.get("API_KEY"):
