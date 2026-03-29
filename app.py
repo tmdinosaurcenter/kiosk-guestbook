@@ -3,6 +3,8 @@ import os
 import re
 import sqlite3
 import threading
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
@@ -22,6 +24,19 @@ DATABASE = os.environ.get('DATABASE_PATH', 'guestbook.db')
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 limiter = Limiter(get_remote_address, app=app, default_limits=[])
+
+_DISPLAY_TZ = ZoneInfo('America/Denver')
+
+@app.template_filter('localtime')
+def localtime_filter(value):
+    if not value:
+        return value
+    try:
+        dt = datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
+        dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(_DISPLAY_TZ).strftime('%Y-%m-%d %H:%M')
+    except ValueError:
+        return value
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'admin_login'

@@ -42,7 +42,7 @@
                         <td>{{ g[4] }}</td>
                         <td>{{ g[5] or '—' }}</td>
                         <td>{{ 'Yes' if g[6] else 'No' }}</td>
-                        <td class="text-nowrap">{{ g[7] }}</td>
+                        <td class="text-nowrap">{{ g[7] | localtime }}</td>
                         <td>
                             {% if current_user.role != 'viewer' %}
                             <form method="POST" action="{{ url_for('admin_delete', entry_id=g[0]) }}?page={{ page }}"
