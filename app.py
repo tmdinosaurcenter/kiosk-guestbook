@@ -123,6 +123,14 @@ def load_banned_words():
 
 BANNED_WORDS = load_banned_words()
 
+FIELD_MAX = {
+    'first_name': 100,
+    'last_name':  100,
+    'email':      254,
+    'location':   100,
+    'comment':   2000,
+}
+
 def contains_banned_words(text):
     lower = text.lower()
     # Whole-word check (punctuation-stripped) — catches exact matches
@@ -246,6 +254,14 @@ def index():
         if not (first_name and last_name and location):
             error = "First name, last name, and location are required."
             logger.warning("Missing required fields.")
+        elif (len(first_name) > FIELD_MAX['first_name'] or
+              len(last_name)  > FIELD_MAX['last_name']  or
+              len(location)   > FIELD_MAX['location']):
+            error = "A required field exceeds the maximum allowed length."
+        elif email and len(email) > FIELD_MAX['email']:
+            error = "Email address is too long."
+        elif comment and len(comment) > FIELD_MAX['comment']:
+            error = f"Comment is too long (max {FIELD_MAX['comment']:,} characters)."
         elif email and not is_valid_email(email):
             error = "Invalid email address."
             logger.warning("Invalid email: %s", email)

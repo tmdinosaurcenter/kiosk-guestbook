@@ -73,17 +73,17 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="mb-3">
                 <label for="first_name" class="form-label">First Name(s):</label>
-                <input type="text" class="form-control" id="first_name" name="first_name" required />
+                <input type="text" class="form-control" id="first_name" name="first_name" maxlength="100" required />
             </div>
             <div class="mb-3">
                 <label for="last_name" class="form-label">Last Name:</label>
-                <input type="text" class="form-control" id="last_name" name="last_name" required />
+                <input type="text" class="form-control" id="last_name" name="last_name" maxlength="100" required />
             </div>
 
             <!-- Email + Newsletter Block (fully fixed) -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email (Optional):</label>
-                <input type="email" class="form-control" id="email" name="email" />
+                <input type="email" class="form-control" id="email" name="email" maxlength="254" />
 
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" name="newsletter_opt_in" id="newsletter_opt_in"
@@ -96,13 +96,13 @@
 
             <div class="mb-3">
                 <label for="location" class="form-label">Location:</label>
-                <input type="text" class="form-control" id="location" name="location" required />
+                <input type="text" class="form-control" id="location" name="location" maxlength="100" required />
             </div>
 
             <!-- Comment field hidden by default -->
             <div class="mb-3" id="comment-field" style="display: none;">
                 <label for="comment" class="form-label">Comment (Optional):</label>
-                <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                <textarea class="form-control" id="comment" name="comment" rows="3" maxlength="2000"></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary">Submit</button>
