@@ -520,6 +520,44 @@ def api_guests():
     ]
     return jsonify(guests)
 
+# ---------------------------------------------------------------------------
+# PWA
+# ---------------------------------------------------------------------------
+
+@app.route('/manifest.webmanifest')
+@csrf.exempt
+def pwa_manifest():
+    import json as _json
+    site_title = os.environ.get('SITE_TITLE', 'Guestbook')
+    logo_url   = os.environ.get('LOGO_URL', '/static/images/logo.png')
+    manifest = {
+        "name": site_title,
+        "short_name": site_title,
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#3a9cb8",
+        "orientation": "any",
+        "icons": [
+            {
+                "src": logo_url,
+                "sizes": "500x500",
+                "type": "image/png",
+                "purpose": "any maskable"
+            }
+        ]
+    }
+    from flask import Response
+    return Response(_json.dumps(manifest), mimetype='application/manifest+json')
+
+@app.route('/sw.js')
+@csrf.exempt
+def service_worker():
+    response = app.send_static_file('sw.js')
+    response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
 if __name__ == '__main__':
     migrate_db()
     logger.info("Starting development server at http://0.0.0.0:8000")
