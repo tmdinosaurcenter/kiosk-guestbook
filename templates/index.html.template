@@ -89,6 +89,10 @@
             Providing your email is optional, but it helps us follow up if needed.
         </div>
 
+        <div id="offline-indicator" class="alert alert-warning d-none" role="status">
+            No internet connection &mdash; your entry will be saved and submitted automatically when reconnected.
+        </div>
+
         {% if error %}
         <div class="alert alert-danger" role="alert">
             {{ error }}
@@ -198,6 +202,8 @@
     <!-- Bootstrap JS (optional) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+    <script src="/static/offline-queue.js"></script>
 
     <!-- Service worker registration -->
     <script>

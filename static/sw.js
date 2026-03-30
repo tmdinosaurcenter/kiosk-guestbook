@@ -1,10 +1,11 @@
-const CACHE_NAME = 'guestbook-v1';
+const CACHE_NAME = 'guestbook-v2';
 const STATIC_ASSETS = [
     'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js',
     'https://fonts.googleapis.com/css2?family=Vollkorn:wght@700&family=Open+Sans&display=swap',
     '/static/images/logo.png',
+    '/static/offline-queue.js',
 ];
 
 self.addEventListener('install', event => {

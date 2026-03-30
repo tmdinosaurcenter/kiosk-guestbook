@@ -76,7 +76,11 @@
         <div class="text-center mt-5">
             <div class="alert alert-success py-4" role="alert">
                 <p class="thank-you-message mb-1">Thanks, {{ name }}!</p>
+                {% if offline %}
+                <p class="mb-0">You&rsquo;re currently offline &mdash; your entry has been saved and will sync automatically when reconnected.</p>
+                {% else %}
                 <p class="mb-0">Your visit has been recorded.</p>
+                {% endif %}
             </div>
             <p class="text-muted mt-3">
                 Returning to the form in <span id="countdown">4</span>...
@@ -127,6 +131,8 @@
             }, 1000);
         })();
     </script>
+
+    <script src="/static/offline-queue.js"></script>
 
     <script>
         if ('serviceWorker' in navigator) {
