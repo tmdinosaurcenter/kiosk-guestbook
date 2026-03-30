@@ -306,7 +306,7 @@ def index():
             "location": location,
             "newsletter_opt_in": newsletter_opt_in,
         },), daemon=True).start()
-        return redirect(url_for('index'))
+        return redirect(url_for('thank_you', name=first_name))
 
     try:
         conn = sqlite3.connect(DATABASE)
@@ -319,6 +319,29 @@ def index():
         guests = []
     logger.info("Rendering index with %d guests.", len(guests))
     return render_template('index.html', error=error, guests=guests)
+
+# ---------------------------------------------------------------------------
+# Thank-you page
+# ---------------------------------------------------------------------------
+
+@app.route('/thank-you')
+def thank_you():
+    name = request.args.get('name', '').strip()
+    if not name:
+        return redirect(url_for('index'))
+    site_title = os.environ.get('SITE_TITLE', 'Guestbook')
+    logo_url   = os.environ.get('LOGO_URL', '/static/images/logo.png')
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT first_name, location FROM guests ORDER BY id DESC LIMIT 100')
+        guests = c.fetchall()
+        conn.close()
+    except sqlite3.Error as e:
+        logger.error("Database error loading guests for thank-you: %s", e)
+        guests = []
+    return render_template('thank_you.html', name=name, guests=guests,
+                           site_title=site_title, logo_url=logo_url)
 
 # ---------------------------------------------------------------------------
 # Admin auth routes
@@ -380,10 +403,30 @@ def admin():
     page = request.args.get('page', 1, type=int)
     per_page = 25
     offset = (page - 1) * per_page
+
+    # Compute week/month boundaries in Mountain Time, convert to UTC for SQLite comparison
+    now_mt = datetime.now(_DISPLAY_TZ)
+    today_mt = now_mt.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start_utc  = (today_mt - timedelta(days=today_mt.weekday())).astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+    month_start_utc = today_mt.replace(day=1).astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+
     try:
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
-        total = c.execute('SELECT COUNT(*) FROM guests').fetchone()[0]
+        row = c.execute('''
+            SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN timestamp >= ? THEN 1 ELSE 0 END) AS this_week,
+                SUM(CASE WHEN timestamp >= ? THEN 1 ELSE 0 END) AS this_month,
+                SUM(CASE WHEN newsletter_opt_in THEN 1 ELSE 0 END) AS newsletter_count
+            FROM guests
+        ''', (week_start_utc, month_start_utc)).fetchone()
+        total, this_week, this_month, newsletter_count = row
+        total = total or 0
+        this_week = this_week or 0
+        this_month = this_month or 0
+        newsletter_count = newsletter_count or 0
+        newsletter_pct = round(newsletter_count / total * 100) if total > 0 else 0
         c.execute('''
             SELECT id, first_name, last_name, email, location, comment, newsletter_opt_in, timestamp
             FROM guests ORDER BY id DESC LIMIT ? OFFSET ?
@@ -393,10 +436,18 @@ def admin():
     except sqlite3.Error as e:
         logger.error("Database error in admin: %s", e)
         guests = []
-        total = 0
+        total = this_week = this_month = newsletter_count = newsletter_pct = 0
+
+    stats = {
+        'total': total,
+        'week': this_week,
+        'month': this_month,
+        'newsletter_count': newsletter_count,
+        'newsletter_pct': newsletter_pct,
+    }
     total_pages = (total + per_page - 1) // per_page
     return render_template('admin.html', guests=guests, page=page, total_pages=total_pages,
-                           total=total)
+                           total=total, stats=stats)
 
 @app.route('/admin/delete/<int:entry_id>', methods=['POST'])
 @login_required
@@ -415,6 +466,46 @@ def admin_delete(entry_id):
     except sqlite3.Error as e:
         logger.error("Database error deleting guest %d: %s", entry_id, e)
     return redirect(url_for('admin', page=request.args.get('page', 1)))
+
+@app.route('/admin/export.csv')
+@login_required
+@csrf.exempt
+def admin_export_csv():
+    if not _admin_configured():
+        abort(503)
+    if current_user.role == 'viewer':
+        abort(403)
+    import csv, io
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('''
+            SELECT id, first_name, last_name, email, location, comment, newsletter_opt_in, timestamp
+            FROM guests ORDER BY id ASC
+        ''')
+        rows = c.fetchall()
+        conn.close()
+    except sqlite3.Error as e:
+        logger.error("Database error in admin_export_csv: %s", e)
+        abort(503)
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(['id', 'first_name', 'last_name', 'email', 'location',
+                     'comment', 'newsletter_opt_in', 'timestamp_mountain'])
+    for row in rows:
+        ts = row[7]
+        try:
+            dt = datetime.strptime(str(ts), '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+            ts = dt.astimezone(_DISPLAY_TZ).strftime('%Y-%m-%d %H:%M')
+        except (ValueError, TypeError):
+            pass
+        writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5], int(row[6] or 0), ts])
+    from flask import Response
+    return Response(
+        buf.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="guestbook_export.csv"'}
+    )
 
 @app.route('/admin/users')
 @login_required

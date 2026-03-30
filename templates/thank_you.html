@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="refresh" content="4;url=/" />
+    <title>{{ site_title }}</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/static/images/logo.png" />
+    <meta name="theme-color" content="#3a9cb8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="{{ site_title }}" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@700&family=Open+Sans&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Vollkorn', serif;
+            font-weight: 700;
+        }
+
+        html, body {
+            height: 100%;
+            overscroll-behavior: none;
+        }
+
+        body {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .scrolling-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .scrolling-content {
+            display: inline-block;
+            padding: 10px;
+            font-size: 1.25rem;
+            animation: scroll-left linear infinite;
+        }
+
+        @keyframes scroll-left {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .thank-you-message {
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5 mb-5">
+        <header class="d-flex align-items-center mb-4">
+            <img src="{{ logo_url }}" alt="Logo" class="me-3" style="height: 50px;" />
+            <h1 class="h3 mb-0">{{ site_title }}</h1>
+        </header>
+
+        <div class="text-center mt-5">
+            <div class="alert alert-success py-4" role="alert">
+                <p class="thank-you-message mb-1">Thanks, {{ name }}!</p>
+                <p class="mb-0">Your visit has been recorded.</p>
+            </div>
+            <p class="text-muted mt-3">
+                Returning to the form in <span id="countdown">4</span>...
+            </p>
+        </div>
+    </div>
+
+    <!-- Scrolling Guest Entries at the Bottom -->
+    <div class="scrolling-wrapper">
+        <div class="scrolling-content">
+            {% for guest in guests %}
+            <span class="me-5">
+                <strong>{{ guest[0] }}</strong> from {{ guest[1] }}
+            </span>
+            {% endfor %}
+            {% for guest in guests %}
+            <span class="me-5">
+                <strong>{{ guest[0] }}</strong> from {{ guest[1] }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const pixelsPerSecond = 80;
+            const content = document.querySelector(".scrolling-content");
+            function updateScrollSpeed() {
+                const oneCopyWidth = content.offsetWidth / 2;
+                content.style.animationDuration = (oneCopyWidth / pixelsPerSecond) + "s";
+            }
+            updateScrollSpeed();
+            window.addEventListener("resize", updateScrollSpeed);
+        })();
+    </script>
+
+    <script>
+        (function () {
+            var n = 4;
+            var el = document.getElementById('countdown');
+            var timer = setInterval(function () {
+                n--;
+                if (el) el.textContent = n;
+                if (n <= 0) {
+                    clearInterval(timer);
+                    window.location.href = '/';
+                }
+            }, 1000);
+        })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            });
+        }
+    </script>
+</body>
+</html>
