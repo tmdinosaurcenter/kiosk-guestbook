@@ -13,7 +13,7 @@ from flask_limiter.util import get_remote_address
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 )
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Set up logging
@@ -329,6 +329,7 @@ def thank_you():
     name = request.args.get('name', '').strip()
     if not name:
         return redirect(url_for('index'))
+    offline = request.args.get('offline') == '1'
     site_title = os.environ.get('SITE_TITLE', 'Guestbook')
     logo_url   = os.environ.get('LOGO_URL', '/static/images/logo.png')
     try:
@@ -341,7 +342,8 @@ def thank_you():
         logger.error("Database error loading guests for thank-you: %s", e)
         guests = []
     return render_template('thank_you.html', name=name, guests=guests,
-                           site_title=site_title, logo_url=logo_url)
+                           site_title=site_title, logo_url=logo_url,
+                           offline=offline)
 
 # ---------------------------------------------------------------------------
 # Admin auth routes
@@ -610,6 +612,12 @@ def api_guests():
         for row in rows
     ]
     return jsonify(guests)
+
+@app.route('/api/csrf', methods=['GET'])
+@csrf.exempt
+@limiter.limit("30 per minute")
+def api_csrf():
+    return jsonify({"csrf_token": generate_csrf()})
 
 # ---------------------------------------------------------------------------
 # PWA
