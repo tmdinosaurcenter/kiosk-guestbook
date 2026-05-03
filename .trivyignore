@@ -9,3 +9,9 @@ CVE-2026-27135
 
 # systemd: arbitrary code execution / DoS via spurious IPC (libsystemd0, libudev1)
 CVE-2026-29111
+
+# libcap: privilege escalation via TOCTOU race in cap_set_file() (libcap2)
+CVE-2026-4878
+
+# gnutls: DoS via DTLS zero-length fragment (libgnutls30t64)
+CVE-2026-33845
