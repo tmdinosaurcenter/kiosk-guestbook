@@ -1,0 +1,11 @@
+# Unfixed OS-level vulnerabilities in Debian 13 (trixie) base image.
+# No fix available upstream as of 2026-04-27; revisit when patches land.
+
+# ncurses: buffer overflow (libncursesw6, libtinfo6, ncurses-base, ncurses-bin)
+CVE-2025-69720
+
+# nghttp2: DoS via malformed HTTP/2 frames after session termination (libnghttp2-14)
+CVE-2026-27135
+
+# systemd: arbitrary code execution / DoS via spurious IPC (libsystemd0, libudev1)
+CVE-2026-29111
